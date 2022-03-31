@@ -6,19 +6,19 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WordCount {
     @Getter
-    private ConcurrentSkipListMap<String, Integer> wordCounts;
+    private final ConcurrentSkipListMap<String, Integer> wordCounts;
 
     public WordCount() {
-        wordCounts = new ConcurrentSkipListMap<String, Integer>();
+        wordCounts = new ConcurrentSkipListMap<>();
     }
 
     public void addWord(String word) {
@@ -46,14 +46,26 @@ public class WordCount {
     public static void main(String[] args) {
         int ret = 0;
 
-        System.out.println("args.length = " + args.length);
         try {
+            String argValue;
             URL url;
-            if (args.length > 0) {
-                url = new URL(args[0]);
+            if (args.length >= 1) {
+                argValue = args[0];
             } else {
-                url = new URL("https://www.cnn.com");
+                argValue = "https://www.cnn.com";
             }
+            url = new URL(argValue);
+
+            int numResults;
+            if (args.length >= 2) {
+                argValue = args[1];
+                if (argValue.equals("all")) {
+                    argValue = Integer.toString(Integer.MAX_VALUE);
+                }
+            } else {
+                argValue = "20";
+            }
+            numResults = Integer.parseInt(argValue);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
@@ -61,7 +73,7 @@ public class WordCount {
 
             if (connection.getResponseCode() == 200) {
                 // Calculate the count
-                System.out.println("Counting words from " + url.toString() + "...");
+                System.out.println("Counting words from " + url + "...");
                 WordCount wordCount = new WordCount();
                 final Pattern WORD_CHARS = Pattern.compile("[a-zA-Z0-9_.-]+");
                 String line;
@@ -82,23 +94,26 @@ public class WordCount {
                 }
 
                 // Output the results
-                int limit = 20;
-                System.out.println("Top " + limit + " Results:");
+                if (numResults != Integer.MAX_VALUE) {
+                    System.out.println("Top " + numResults + " Results:");
+                }
+                else {
+                    System.out.println("Results:");
+                }
                 Map<String, Integer> wordCounts = wordCount.getWordCounts();
-                List<Map.Entry<String, Integer>> entries = new ArrayList();
-                entries.addAll(wordCounts.entrySet());
+                List<Map.Entry<String, Integer>> entries = new ArrayList<>(wordCounts.entrySet());
                 // Sort highest to lowest
                 entries.sort((e1, e2) -> e2.getValue() - e1.getValue());
                 int ct = 0;
                 for (Map.Entry<String, Integer> entry : entries) {
                     System.out.println("  " + entry.getKey() + ": " + entry.getValue());
-                    if (++ct >= limit) {
+                    if (++ct >= numResults) {
                         break;
                     }
                 }
             } else {
                 System.err.println("HTTPS returned " + connection.getResponseCode());
-                System.err.println(connection.toString());
+                System.err.println(connection);
             }
         } catch (Exception e) {
             e.printStackTrace();
