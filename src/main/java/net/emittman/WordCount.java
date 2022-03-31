@@ -82,14 +82,19 @@ public class WordCount {
                 }
 
                 // Output the results
-                System.out.println("\nResults:");
+                int limit = 20;
+                System.out.println("Top " + limit + " Results:");
                 Map<String, Integer> wordCounts = wordCount.getWordCounts();
                 List<Map.Entry<String, Integer>> entries = new ArrayList();
                 entries.addAll(wordCounts.entrySet());
                 // Sort highest to lowest
                 entries.sort((e1, e2) -> e2.getValue() - e1.getValue());
+                int ct = 0;
                 for (Map.Entry<String, Integer> entry : entries) {
                     System.out.println("  " + entry.getKey() + ": " + entry.getValue());
+                    if (++ct >= limit) {
+                        break;
+                    }
                 }
             } else {
                 System.err.println("HTTPS returned " + connection.getResponseCode());
