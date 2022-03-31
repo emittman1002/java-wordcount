@@ -67,9 +67,9 @@ public class WordCount {
                 String line;
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 while ((line = reader.readLine()) != null) {
-                    line = line.replaceAll("\s+", " ")
+                    line = line.replaceAll("\\s+", " ")
                             .replaceAll(". ", " ");
-                    for (String chars : line.split("\s")) {
+                    for (String chars : line.split("\\s")) {
                         Matcher matcher = WORD_CHARS.matcher(chars);
                         int start = 0;
                         int len = chars.length();
