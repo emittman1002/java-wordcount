@@ -35,7 +35,7 @@ public class WordCount {
         Integer ct = wordCounts.get(word);
         if (ct != null) {
             if (--ct > 0) {
-                wordCounts.put(word, --ct);
+                wordCounts.put(word, ct);
             }
             else {
                 wordCounts.remove(word);
